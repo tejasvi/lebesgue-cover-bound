@@ -9,7 +9,8 @@ relaxedAutoImplicit = false
 autoImplicit = false
 weak.linter.style.header = false
 
-# Lower bounds 0.8366 (compiled certificate), 0.8347 and 0.836 (kernel-checked certificates) for Lebesgue's universal covering problem.
+# Lower bounds 0.8366 (a compiled and a kernel-checked certificate), 0.836 and 0.8347 (kernel-checked certificates) for Lebesgue's
+# universal covering problem.
 # Toolchain leanprover/lean4:v4.35.0-rc3; Mathlib at tag v4.35.0-rc3 (commit c55e6e786f49, see lake-manifest.json).
 [[require]]
 name = "mathlib"
@@ -27,7 +28,7 @@ name = "LebFast"
 globs = ["LebFast", "LebFast.+"]
 precompileModules = true
 
-# The kernel-checked certificates (three and four bodies): root boxes, the packed-data decoder and the generated leaf
+# The kernel-checked certificates (three, four and five bodies): root boxes, the packed-data decoder and the generated leaf
 # modules (core Lean, not compiled).
 [[lean_lib]]
 name = "LebK"
@@ -40,3 +41,7 @@ root = "tools.HeurTest"
 [[lean_exe]]
 name = "leafbench"
 root = "tools.LeafBench"
+
+[[lean_exe]]
+name = "k11extract"
+root = "tools.K11Extract"

@@ -1,18 +1,20 @@
 # Lean formalization of lower bounds for Lebesgue's universal covering problem
 
-This directory contains a Lean 4 + Mathlib development with three proofs of lower bounds for the area of universal
-covers in the plane:
+This directory contains a Lean 4 + Mathlib development with four proofs of three lower bounds for the area of
+universal covers in the plane:
 
 - **Λ ≥ 0.8366**, through M(D, B₃, B₅, B₇, B₉) ≥ 0.8366: the least area of the convex hull of congruent copies of the
-  disk of diameter 1 and the regular Reuleaux triangle, pentagon, heptagon and nonagon of width 1. Its certificate is
-  checked by compiled evaluation (`native_decide`).
+  disk of diameter 1 and the regular Reuleaux triangle, pentagon, heptagon and nonagon of width 1. It has two proofs on
+  the same tree. The certificate of the first is checked by compiled evaluation (`native_decide`), the certificate of
+  the second by the Lean kernel (`decide +kernel`).
 - **Λ ≥ 0.836**, through M(D, B₃, B₅, B₇) ≥ 0.836 (disk, triangle, pentagon and heptagon).
 - **Λ ≥ 0.8347**, through M(D, B₃, B₅) ≥ 0.8347 (disk, triangle and pentagon).
 
-The certificates of the last two proofs are checked by the Lean kernel (`decide +kernel`). Their trusted base is Lean's
-kernel, including the kernel's built-in arithmetic on natural numbers, and they use only the three standard axioms.
+The second proof of 0.8366 and the proofs of 0.836 and 0.8347 are kernel-checked: the Lean kernel checks their
+certificates (`decide +kernel`). Their trusted base is Lean's kernel, including the kernel's built-in arithmetic on
+natural numbers, and they use only the three standard axioms.
 
-The three proofs share the definitions, the soundness of the leaf check, the tree lemmas, the vertex tables, the
+The four proofs share the definitions, the soundness of the leaf check, the tree lemmas, the vertex tables, the
 far-region argument and the reduction of arbitrary isometries to placements in a root box.
 
 ## Statements and final theorems
@@ -43,6 +45,15 @@ For each of these five, `#print axioms` gives `propext`, `Classical.choice`, `Qu
 `L11.<module>.ok._native.native_decide.ax_1_1`, one for each certificate module (2,048 cell modules `B<c>` and 73,013
 subtree modules `S<c>_<k>`). There is no `sorry` and no other axiom.
 
+The final theorems of the kernel-checked 0.8366 proof are in the generated module `LebesgueCover/K11/Root11K.lean`
+(namespace `LebesgueCover.K11`; a copy is in `final/Root11K.lean`):
+
+```lean
+theorem hull5_geK : Hull5Statement            -- M(D, B₃, B₅, B₇, B₉) ≥ 0.8366
+theorem main5K : Main5Statement               -- Λ ≥ 0.8366
+theorem weak_main5K : WeakMain5Statement      -- the same for every weak universal cover
+```
+
 The final theorems of the 0.836 proof are in the generated module `LebesgueCover/K8/Root4Good.lean` (namespace
 `LebesgueCover.K8`; a copy is in `final/Root4Good.lean`):
 
@@ -61,19 +72,20 @@ theorem main3K : Main3Statement               -- Λ ≥ 0.8347
 theorem weak_main3K : WeakMain3Statement      -- the same for every weak universal cover
 ```
 
-For each of the six theorems of these two proofs, `#print axioms` gives exactly `propext`, `Classical.choice` and
-`Quot.sound`. `MainStatement` and `WeakMainStatement` therefore have two proofs: `main_836` and `weak_main_836` use
-compiled evaluation; `mainK` and `weak_mainK` do not.
+For each of the nine theorems of these three proofs, `#print axioms` gives exactly `propext`, `Classical.choice` and
+`Quot.sound`. `Main5Statement`, `WeakMain5Statement`, `MainStatement` and `WeakMainStatement` therefore have two proofs
+each: `main5`, `weak_main5`, `main_836` and `weak_main_836` use compiled evaluation; `main5K`, `weak_main5K`, `mainK`
+and `weak_mainK` do not.
 
 ## Trust base
 
 Each `native_decide` auxiliary of the 0.8366 proof states `decide p = true` for the proposition `p` of one certificate
 module: a run of the compiled leaf checker and tree walker on that module's data. It is justified by evaluating `p`
 with compiled code instead of the kernel, so `native_decide` trusts the Lean compiler and runtime for these
-evaluations. The 0.836 and 0.8347 proofs have no such step: the kernel evaluates their leaf checks and tree walks
+evaluations. The kernel-checked proofs have no such step: the kernel evaluates their leaf checks and tree walks
 (`decide +kernel`).
 
-Everything else is checked by the kernel with the three standard axioms, in all three proofs:
+Everything else is checked by the kernel with the three standard axioms, in all four proofs:
 - the soundness of the fast leaf checker `LebFast/Exact.lean` with respect to the reference leaf checker
   (`LebesgueCover/FastBridge.lean`; the reference checker is in `Checker.lean`, `Sound.lean`, `Quad.lean`, `Rot.lean`),
   and of the reference checker with respect to the geometric conclusion "every placement in the box has hull area > τ"
@@ -90,30 +102,36 @@ Everything else is checked by the kernel with the three standard axioms, in all 
 - the diameters of the bodies and the passage from the hull bounds to the two readings of Λ (`Diam.lean`,
   `Main3.lean`).
 
-In the 0.836 proof, the support points of each leaf are written as one natural number. The kernel decodes it inside the
-leaf check (`LebK/Decode.lean`). The soundness of the leaf check holds for every list of support points, so the decoder
-needs no proof of its own.
+In the kernel-checked proofs of 0.8366 and 0.836, the support points of each fan are written as one natural number.
+The kernel decodes it inside the leaf check (`LebK/Decode.lean`). The soundness of the leaf check holds for every list
+of support points, so the decoder needs no proof of its own.
 
 The certificate data were produced with floating-point heuristics:
-- for the 0.8366 proof, by the compiled checker at check time (`LebFast/Heur.lean`);
+- for the compiled 0.8366 proof, by the compiled checker at check time (`LebFast/Heur.lean`);
+- for the kernel-checked 0.8366 proof, by the same heuristics, run once on the compiled proof's tree with fewer support
+  points and with the data rounded to dyadic numbers, by the compiled program `tools/K11Extract.lean`, and then written
+  into the modules (`tools/gen/k11/`);
 - for the 0.836 and 0.8347 proofs, offline, and then written into the modules (`tools/gen/`).
-The soundness theorems hold for arbitrary data, so these heuristics are not part of the trust base. Neither are the
-branch-and-bound searches that produced the trees.
+The soundness theorems hold for arbitrary data, so these heuristics and programs are not part of the trust base.
+Neither are the branch-and-bound searches that produced the trees.
 
 ## Contents
 
 - `lean/`: the Lake project.
-  - The 38 Lean files of the development, and `lean-toolchain`, `lakefile.toml` and `lake-manifest.json`.
-  - `tools/K3Axioms.lean` and `tools/K8Axioms.lean`: print the axioms of the 0.8347 and 0.836 finals.
-  - Two optional tool programs, `tools/HeurTest.lean` and `tools/LeafBench.lean`. They are development programs, not
-    part of any proof.
+  - The 39 Lean files of the development, and `lean-toolchain`, `lakefile.toml` and `lake-manifest.json`.
+  - `tools/K3Axioms.lean`, `tools/K8Axioms.lean` and `tools/K11Axioms.lean`: print the axioms of the 0.8347, 0.836 and
+    kernel-checked 0.8366 finals.
+  - Three optional tool programs: `tools/HeurTest.lean`, `tools/LeafBench.lean`, and `tools/K11Extract.lean`, the
+    extractor of the kernel-checked 0.8366 certificate data (`lake build k11extract`). They are not part of any proof.
   - `LebesgueCover/` is the Mathlib development listed above.
   - `LebFast/` is the fast checker in core Lean (`Heur`, `Model`, `Exact`, `Driver`, `Tree`, `VT`, and `Root11` with
     the 11D root box), compiled for `native_decide`.
   - `LebK/` holds core-Lean files of the kernel-checked certificates: the root boxes `Root3.lean` (5D) and `Root4.lean`
-    (8D), and the decoder `Decode.lean`.
-- `final/Root11Good.lean`, `final/Root4Good.lean`, `final/Root3Good.lean`: copies of the three modules with the final
-  theorems (also in `l11_sources.tar.zst`, `k8_sources.tar.zst` and `k5_sources.tar.zst`).
+    (8D), and the decoder `Decode.lean`. The kernel-checked 0.8366 proof uses the 11D root box of `LebFast/Root11.lean`;
+    `LebesgueCover/K11Base.lean` adds its vertex table and the goodness of combination leaves.
+- `final/Root11Good.lean`, `final/Root11K.lean`, `final/Root4Good.lean`, `final/Root3Good.lean`: copies of the four
+  modules with the final theorems (also in `l11_sources.tar.zst`, `k11_glue.tar.zst`, `k8_sources.tar.zst` and
+  `k5_sources.tar.zst`).
 - `tools/`:
   - for the 0.8366 proof: `build_l11.sh` and `final_l11.sh` (build); `mkblocks3.py` and `mkroot11.py`, the generators
     of the `L11` modules (`mkroot11.py` reproduces `C*.lean` and `Root11Good.lean` exactly); `count_l11.py` (counts);
@@ -121,6 +139,11 @@ branch-and-bound searches that produced the trees.
     `header_k8.json`, and `mkroot8.py`, which reproduces `Root4Good.lean` exactly;
   - for the 0.8347 proof: `build_k5.sh` (build); in `gen/k5/` (optional), the generator `mkk5.py` with its root box
     `header_k5.json`;
+  - for the kernel-checked 0.8366 proof: `build_k11.py` (build); in `gen/k11/` (optional), the generator `mkk11.py`
+    (its modes `glue` and `root` reproduce the 75,126 modules of `k11_glue.tar.zst` exactly from the native certificate
+    modules of `l11_sources.tar.zst`; mode `leaves` writes the leaf modules from the extractor's output), `k11export.sh`,
+    which generates the sources of one cell from its native modules and glue, and `regen_k11.sh`, which runs it for one
+    cell and compares the result with the shipped files (see Checks);
   - in `gen/`, used by both kernel-checked proofs: the branch-and-bound search `s_search3k.py` and the floating-point
     pipeline it and the generators use (`leafbound.py`, `s_eval.py`, `s_search.py`, `export_test.py`, `exact.py`).
     These scripts need the paper's `checker/` directory (`lbcheck.py`) in `LEBESGUE_CHECKER` or at
@@ -129,7 +152,7 @@ branch-and-bound searches that produced the trees.
     from the search output. The leaf data they compute can differ in the last bits of support points between
     floating-point environments, and the kernel checks every such variant all the same.
   - The search that produced the 11D tree is not included; no search is needed to check any of the proofs.
-- Six archives distributed with this directory:
+- Archives distributed with this directory:
   - `l11_sources.tar.zst`: the 77,175 generated modules of the 0.8366 proof under `L11/` and their `SHA256SUMS_lean`:
     - `B<c>` (cell `c`, with its subtrees above a fixed size delegated) and `S<c>_<k>` (the delegated subtrees, at most
       2,997 leaves, almost all at most 600): the certificate, checked by `native_decide`;
@@ -162,6 +185,23 @@ branch-and-bound searches that produced the trees.
     - `tools/gen/k5/s1/`: the search output (one code array per cell), the input of `mkk5.py`.
   - `k5_oleans.tar.zst`: the `.olean` files of these 821 modules under `k5_oleans/`, with their
     `SHA256SUMS_k5_olean`. They let one inspect the 0.8347 finals without the roughly 200 hours of kernel checking.
+  - `k11_sources_00.tar` … `k11_sources_15.tar`: the generated sources of the kernel-checked 0.8366 proof, one tarball
+    `k11_sources/P<c>.tar.gz` per grid cell `c`, in contiguous ranges of cells of at most 2 GB per container
+    (`k11_sums/CONTAINERS.tsv` lists the ranges). Each cell tarball holds, with paths relative to the cell:
+    - `LebK/L11/<M>_<j>.lean`: the leaves of the native module `M` (`B<c>` or `S<c>_<k>` of `l11_sources.tar.zst`), at
+      most 32 per module, in the leaf order of the compiled proof. Each leaf has its box, fan centres, `β`, `σ`, the
+      support points of each fan (one packed natural number per fan), the weights of a combination, and the theorem
+      `ok : leafOKF … = true` or `ok : combOKF … = true` proved by `decide +kernel`;
+    - `LebesgueCover/K11/H<c>_<k>.lean` and `G<c>.lean`: the tree walks of the subtrees and of the cell (units of at
+      most 32 delegated leaves or sub-units, each checked by `decide +kernel`) and the goodness of their boxes;
+    - `jobs.tsv` (the modules, their dependencies and scheduling estimates) and `extract_mod.txt` (the extractor's
+      summary per native module).
+  - `k11_glue.tar.zst`: under `k11_glue/LebesgueCover/K11/`, the 75,126 glue modules generated from the tree before
+    the build (the `H` and `G` modules, which are also in the cell tarballs, the 64 chunks `C00` … `C63` of 32 cells
+    each, and `Root11K`), with their `SHA256SUMS`.
+  - `k11_sums.tar.zst`: the build records of the kernel-checked 0.8366 proof: the SHA-256 hashes of the 16 containers,
+    of every cell tarball, of every file in them and of every `.olean` file of the build, the module map (class, cell,
+    source, `.olean`, leaf counts, dependencies) and the census.
 
 ## Certificates
 
@@ -172,6 +212,12 @@ separate tree, built for the leaf model formalized here. The root box is split i
 coordinate. Each cell carries a binary tree. A leaf is closed either by one fan (a polygon of support points with a
 quadratic lower bound of its area on the leaf box) or by a convex combination of several fans. In total there are
 9,239,121 leaves (3,639,774 single-fan and 5,599,347 combination leaves) and 18,476,194 nodes.
+
+The kernel-checked 0.8366 proof uses the same root box, cells, trees and leaf boxes, and closes each leaf with the same
+kind of fan or combination. Its leaf data were extracted again from the compiled proof's certificate with fewer support
+points per fan, and rounded to dyadic numbers with denominators 2¹⁶, 2²⁰ or 2²⁴ wherever the exact check still passed
+after rounding. Its 406,888 generated modules are 331,762 leaf modules, 73,013 subtree modules `H<c>_<k>`, 2,048 cell
+modules `G<c>`, 64 chunks and `Root11K`.
 
 The 0.836 root box has 8 coordinates: the translations of the triangle, pentagon and heptagon, and the rotations of
 the pentagon and the heptagon relative to the triangle.
@@ -193,7 +239,8 @@ T = (3267777, 3322521)/2²⁴, slightly larger than the bounds of the paper's 5D
 closes the complement (area 0.834955 > 0.8347). The root box is split into 1,024 cells by two bisections per
 coordinate, and every leaf of the cell trees is closed by one fan: 25,214 leaves.
 
-The two kernel-checked proofs use the leaf model and the checker `leafOKF` of the 0.8366 proof.
+The kernel-checked proofs use the leaf model and the checkers of the compiled 0.8366 proof: `leafOKF` for one fan,
+and `combOKF` for the combination leaves of the kernel-checked 0.8366 proof.
 
 ## Build
 
@@ -251,6 +298,35 @@ bash ../tools/build_k5.sh /path/to/k5_sources.tar.zst
   processes on 60 cores, the build took about 4 hours, with up to about 2.3 GB per process.
 - The glue modules take minutes, up to about 10 GB for the largest.
 
+The kernel-checked 0.8366 proof:
+
+```sh
+mkdir -p k11 && for f in /path/to/k11_sources_*.tar; do tar -xf "$f" -C k11; done
+zstd -dc /path/to/k11_glue.tar.zst | tar -xf - -C k11
+zstd -dc /path/to/k11_sums.tar.zst | tar -xf - -C k11
+(cd k11/k11_glue && sha256sum -c --quiet SHA256SUMS)
+python3 ../tools/build_k11.py k11 --par 60 --check
+```
+
+`build_k11.py` unpacks each cell tarball into `k11_build/cells/` and checks its files against
+`k11_sums/SOURCES_SHA256SUMS`. It compiles every module in its own single-threaded process with the command of the
+original build, `lean -DElab.async=false -j1 --root=<source tree> -o <olean> <source>`: first the leaf modules of all
+cells (admitted by their estimated memory), then the `H` modules, the `G` modules, the 64 chunks and `Root11K`. Finally
+it prints the axioms of the finals (`tools/K11Axioms.lean`). With `--check` it compares each `.olean` it compiles with
+`k11_sums/OLEAN_SHA256SUMS`. (The `.olean` files of eight library modules, `Fan`, `Far`, `FastBridge`, `Main5`, `Rot`,
+`Sound`, `TreeSound` and `VertTable`, depend on the build directory: a Mathlib linter logs the absolute path of the source
+file in them. The generated modules do not.)
+- The leaf modules take about 82,700 hours of single-threaded processes in total, measured with two processes per
+  physical core: a median of about 16 minutes per module, up to 96 minutes, and a median of 7.2 GB per process, up to
+  61 GB.
+- The `H` and `G` modules take about 240 hours in total, up to 9 GB each; the 64 chunks about 6 minutes in total, up
+  to 20 GB each. `Root11K` takes about 2 minutes and 240 GB.
+- The original build ran on 21 machines with 384 hardware threads each, in about 11 hours. Each machine compiled the
+  modules of whole cells into one search root that held Mathlib, the library and the generated `.olean` files. With
+  `--shard i/n`, the script compiles the cells `c` with `c mod n = i`; collect the generated `.olean` files on one
+  machine and finish there with `--skip-cells` (see the script's header).
+- The `.olean` files of this proof (238 GB) are not distributed; `k11_sums/OLEAN_SHA256SUMS` lists their hashes.
+
 To inspect the final theorems from the shipped `.olean` files instead, unpack them after the base build and print the
 axioms. This reads the declarations as compiled and does not re-run the kernel on them; checking them again needs a
 kernel replay of the `.olean` files. The `L11` modules have their own root and go to a separate directory. The
@@ -273,7 +349,8 @@ lake env lean tools/K3Axioms.lean
 
 ## Checks
 
-`SHA256SUMS` lists every file of this directory; the six archives carry their own manifests.
+`SHA256SUMS` lists every file of this directory. The archives carry their own manifests; for the kernel-checked
+0.8366 proof these are `k11_sums` (the cell tarballs and every file in them) and `k11_glue/SHA256SUMS`.
 
 The modules of the 0.8366 proof were also re-checked separately:
 - all 77,201 modules of the closure were replayed in the kernel;
@@ -287,11 +364,10 @@ The two kernel-checked proofs were re-checked separately as well, each on anothe
   256 chunk modules, `Root4Good` and the five library modules of this proof (about 1,830 thread-hours). No module
   stores an axiom. The five library modules built there are byte-identical to the shipped ones, and a seeded sample
   of 176 leaf modules, 26 chunk modules and `Root4Good`, compiled again from these sources with the command of
-  `build_k8.sh`, is identical to the shipped `.olean` files, constant by constant and byte for byte.
+  `build_k8.sh`, is byte-identical to the shipped `.olean` files.
 - 0.8347: all 821 generated modules were rebuilt from these sources, so the kernel checked every declaration again,
-  including the 25,214 leaf checks (about 136 hours of single-threaded processes). The rebuilt `.olean` files have
-  the same imports and constants as the shipped ones. 78 modules were replayed in the kernel: the final module, the
-  32 glue modules, the library modules of this proof and 40 seeded leaf modules.
+  including the 25,214 leaf checks (about 136 hours of single-threaded processes). 78 modules were replayed in the
+  kernel: the final module, the 32 glue modules, the library modules of this proof and 40 seeded leaf modules.
 - For each of the two proofs, exports of the lemmas that turn the certificate into the final theorems, of one cell
   unit and of one leaf module with their computations were checked outside the build. leanchecker (Lean's kernel,
   run on an exported file) and lean4lean (an independent implementation of the kernel) accepted all three. nanoda
@@ -299,3 +375,24 @@ The two kernel-checked proofs were re-checked separately as well, each on anothe
 - Altered inputs were rejected: for both proofs a swapped proof and a leaf with a false claim, and for the 0.836
   proof also a leaf with one changed digit of its packed support points. The statements and axioms of the final
   theorems of both proofs were confirmed.
+
+The kernel-checked 0.8366 proof:
+- The sources of 28 cells (20 spread over the range of cell sizes and 8 chosen at random) were regenerated on a machine
+  with another processor type, and those of two cells again with `regen_k11.sh` from the files of this release. Every
+  file is byte-identical to the shipped one, except `extract_mod.txt`, which records extraction times.
+- From the native modules of `l11_sources.tar.zst`, `mkk11.py` (modes `glue` and `root`) reproduces all 75,126 modules
+  of `k11_glue.tar.zst` byte for byte.
+- Two cells (68 and 84, 42 modules) were built with `build_k11.py` from the files of this release on a fresh machine;
+  every `.olean` file is byte-identical to the original build.
+- The whole build was replayed independently on other machines. All 406,823 unit modules and the 65 chunk and root
+  modules were compiled again from the shipped sources with the recorded commands, on a library built again from these
+  sources, so the kernel checked every declaration again, including the 9,239,121 leaf checks. Every rebuilt unit, chunk
+  and root `.olean` is byte-identical to the original build. Of the 33 library modules, 24 are byte-identical and 8
+  differ only by the build path that Mathlib's linter log stores, with their imports and constants identical, theorem
+  proofs included; the extractor's module lies outside the final theorems' import closure.
+- In the rebuilt environment no project constant is an axiom or opaque, and none refers to an axiom other than the
+  standard three; the final theorems depend only on `propext`, `Classical.choice` and `Quot.sound`. Their stored types
+  are exactly `Hull5Statement`, `WeakMain5Statement` and `Main5Statement`.
+- Altered inputs were rejected, each at the changed declaration: a leaf with a false claim (one fan, and a combination),
+  a changed digit of a packed support-point number, a support-point number set to 0, a swapped proof, an item dropped
+  from a tree walk, the root module without one chunk, and the bound 0.8367 in place of 0.8366.

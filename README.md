@@ -1,7 +1,7 @@
 # A lower bound of 0.8366 for Lebesgue's universal covering problem
 
 Programs and certificates for the paper *A lower bound of 0.8366 for Lebesgue's universal covering problem*
-by Tejasvi Singh Tomar (doi:10.5281/zenodo.23584939), archived at doi:10.5281/zenodo.23584940.
+by Tejasvi Singh Tomar (doi:10.5281/zenodo.23632238), archived at doi:10.5281/zenodo.23632239.
 
 ## Theorem
 
@@ -13,9 +13,9 @@ Let `D` be the disk of diameter 1, let `B_n` be the regular Reuleaux `n`-gon of 
 Hence every convex set in the plane that contains a congruent copy of every set of diameter 1 has area at least
 0.8366 (Lebesgue's universal covering problem). The previous lower bound was 0.83474, proved by J. Hatchett with
 `D`, `B_3` and `B_5` (doi:10.5281/zenodo.22135010). The first inequality above is slightly weaker than that bound.
-It is included as a smaller test of the method. The third inequality and the bound 0.8366 are also proved in Lean, and
-so are the first two inequalities and the bounds 0.8347 and 0.836, there with every check run in the Lean kernel
-(`formal/`, see below).
+It is included as a smaller test of the method. All three inequalities, with the bounds 0.8347, 0.836 and 0.8366, are
+also proved in Lean, in proofs checked entirely by Lean's kernel, and the third also has a Lean proof that runs its
+certificate checks as compiled code (`formal/`, see below).
 
 ## Proof outline
 
@@ -47,9 +47,9 @@ so are the first two inequalities and the bounds 0.8347 and 0.836, there with ev
 | `certificates/cert5d_08347.tar.xz` | certificate of `M(D, B_3, B_5) >= 0.8347` (16 parts) |
 | `certificates/cert8d_0836.tar.xz` | certificate of `M(D, B_3, B_5, B_7) >= 0.836` (24 parts) |
 | `certificates/SHA256SUMS` | SHA-256 of the two archives |
-| `certificates/cert11d_08366.sha256` | SHA-256 of the archive of the certificate of `M(D, B_3, B_5, B_7, B_9) >= 0.8366` (2,048 parts), which is too large for this repository and is archived only at doi:10.5281/zenodo.23584940 |
+| `certificates/cert11d_08366.sha256` | SHA-256 of the archive of the certificate of `M(D, B_3, B_5, B_7, B_9) >= 0.8366` (2,048 parts), which is too large for this repository and is archived only at doi:10.5281/zenodo.23632239 |
 | `independent/` | second verifiers, decoders, minimization and negative tests, and the run recorded in `full11/` (see below) |
-| `formal/` | the Lean 4 proofs of `M(D, B_3, B_5, B_7, B_9) >= 0.8366`, `M(D, B_3, B_5) >= 0.8347` and `M(D, B_3, B_5, B_7) >= 0.836` and of the three bounds (the last two with every check run in Lean's kernel), with their own `README.md` and `SHA256SUMS` (see below) |
+| `formal/` | the four Lean 4 proofs described below, with their own `README.md` and `SHA256SUMS` |
 
 Each archive contains one directory with the files `partNNNN.json` (header) and `partNNNN.npy` (codes) of every
 part and a file `SHA256SUMS` for them. The archive `cert11d_08366.tar.xz` (293,113,544 bytes) also contains the side
@@ -121,7 +121,7 @@ The directory `independent/` holds programs written separately from the checker 
 and in those of the checker and the search programs, "independent" means that a program shares no code with the
 programs it checks. None of them imports either program, except the negative tests, which import
 `checker/lbcheck.py` in order to test it. They need NumPy, SciPy (tested with 1.18), mpmath (tested with 1.4) and
-python-flint.
+python-flint, and each is run as `python3 FILE` with the arguments shown below.
 
 | File | Purpose |
 |---|---|
@@ -205,7 +205,7 @@ leaves left over by pass 3 (`pass23/logs_p2/pass3d_a_idx.txt`) and on the leaves
 | `pass23/results/pass*.jsonl` | the output of the later passes, one line per leaf; the `.meta` files hold the SHA-256 of the programs that were run |
 | `pass23/final11.py` | the accounting program |
 | `pass23/FINAL11.json` | its output: `"ALL 16193402 LEAVES VERIFIED"`, 0 unresolved leaves, 0 problems |
-| `full11_pass1.sha256` | SHA-256 of `full11_pass1.tar.xz` (116,500,532 bytes), the output of pass 1, which is archived only at doi:10.5281/zenodo.23584940 |
+| `full11_pass1.sha256` | SHA-256 of `full11_pass1.tar.xz` (116,500,532 bytes), the output of pass 1, which is archived only at doi:10.5281/zenodo.23632239 |
 
 The output of pass 1 has one directory per server, renamed `box01`, ..., `box43` for this release, with
 `partNNNN.json` (leaf counts, SHA-256 of the input files and of the programs, the leaves not verified, the smallest
@@ -232,21 +232,24 @@ be byte-identical to the file in this repository (SHA-256 `abf4552b8a9a77f6f9bb3
 
 ## Lean proof (`formal/`)
 
-The Lean 4 proof of the third inequality and of the bound 0.8366 uses the toolchain `leanprover/lean4:v4.35.0-rc3` and
-Mathlib (tag `v4.35.0-rc3`). The directory `formal/` holds the Lean project (`formal/lean/`), its build scripts and the
-generators of the certificate modules (`formal/tools/`), a README with the statements, the trust base and the build
-steps, and a `SHA256SUMS` for these files. The final theorems, in namespace `L11` of the generated module
-`L11/Root11Good.lean` (a copy is in `formal/final/`), include `hull5_ge` (`M(D, B_3, B_5, B_7, B_9) >= 0.8366`), `main5` (every universal cover has area at
+The directory `formal/` holds the Lean project (`formal/lean/`), its build scripts and the generators of the certificate
+modules (`formal/tools/`), a README with the statements, the trust base and the build steps, and a `SHA256SUMS` for these
+files. It contains four Lean 4 proofs, for the toolchain `leanprover/lean4:v4.35.0-rc3` and Mathlib (tag `v4.35.0-rc3`):
+a proof of the third inequality and the bound 0.8366 whose certificate checks run as compiled code, and, for each of the
+three inequalities and bounds, a kernel-checked proof, in which every check runs in the Lean kernel.
+
+The final theorems of the first proof, in namespace `L11` of the generated module `L11/Root11Good.lean` (a copy is in
+`formal/final/`), include `hull5_ge` (`M(D, B_3, B_5, B_7, B_9) >= 0.8366`), `main5` (every universal cover has area at
 least 0.8366) and `weak_main5` (the same for every convex set that contains a congruent copy of every convex set of
 diameter 1). The statements are in `formal/lean/LebesgueCover/Defs.lean`. Their axioms are `propext`,
 `Classical.choice`, `Quot.sound` and 75,061 auxiliary axioms of `native_decide`, one for each certificate module.
 
-The Lean proof checks its own certificate, not the certificates in `certificates/`: a tree in which the rotations are
+This proof checks its own certificate, not the certificates in `certificates/`: a tree in which the rotations are
 given by the half-angle coordinates `s = tan(rho/2)`, with 2,048 root cells and 9,239,121 leaves, whose leaves are closed
 by one fan or a convex combination of fans, each bounded by an exact quadratic bound with an exact `LDL^T`
 factorization instead of the Taylor bound (Section 4.6 of the paper). The
 77,175 generated modules and their compiled `.olean` files (all but `AxL11.lean`, which prints the axioms) are too large
-for this repository and are archived only at doi:10.5281/zenodo.23584940. Check both archives against this table, or
+for this repository and are archived only at doi:10.5281/zenodo.23632239. Check both archives against this table, or
 against the supplement's `SHA256SUMS`, before unpacking them:
 
 | File | Bytes | SHA-256 |
@@ -258,16 +261,56 @@ against the supplement's `SHA256SUMS`, before unpacking them:
 processes) and to load the shipped `.olean` files, which prints the statements and axioms of the final theorems without
 a rebuild. Loading `.olean` files does not check their proofs in the kernel again.
 
-The second Lean proof in the project, of the first inequality and the bound 0.8347, runs every check in the Lean
-kernel. Its final theorems, in namespace `LebesgueCover.K3`, are `hull3_geK` (`M(D, B_3, B_5) >= 0.8347`),
-`main3K` (every universal cover has area at least 0.8347) and `weak_main3K` (the same for every convex set that contains
-a congruent copy of every convex set of diameter 1); the two new statements are in
-`formal/lean/LebesgueCover/DefsK.lean`. Their axioms are only `propext`, `Classical.choice` and `Quot.sound`. This proof
-checks a certificate of its own for `D`, `B_3` and `B_5`, with a slightly larger root box divided into 1,024 cells and
-25,214 leaves, each closed by one fan. For every leaf a theorem states that the exact leaf check of the first proof
-accepts it, and the Lean kernel proves it by evaluation; further theorems of the same kind check that the leaves of
-each cell are the boxes of its tree. Its 821 generated modules, with the output of its search, and their compiled files
-are in two more archives at doi:10.5281/zenodo.23584940:
+The final theorems of the three kernel-checked proofs use only the axioms `propext`,
+`Classical.choice` and `Quot.sound`. For each leaf of their certificates, a theorem states that the exact leaf check of
+the first proof accepts the data written for that leaf, and the Lean kernel proves it by evaluation. Further theorems of
+the same kind check that the leaves of each cell are the boxes of its tree and that the cells make up the root box.
+
+The proof of the third inequality and the bound 0.8366 is in namespace `LebesgueCover.K11`: `hull5_geK`, `main5K` and
+`weak_main5K`, with the same statements as `hull5_ge`, `main5` and `weak_main5`. It uses the tree of the first proof,
+with the same root box, cells and leaves (3,639,774 single-fan and 5,599,347 combination leaves) and the same argument for
+the placements outside the root box. The support points of each fan are written as one natural number, which the kernel
+decodes inside the leaf check. A compiled extractor and a generator computed the leaf data from the generated modules of
+the first proof; they are not part of the proof. The 406,888 generated modules (331,762 leaf modules of at most 32 leaves,
+73,013 + 2,048 modules that walk the trees of the cells, 64 chunk modules and the root module) took about 83,000 hours of
+single-threaded processes to build, with at most 61 GB of memory per process for the leaf modules and 241 GB for the root
+module. Their compiled files, about 238 GB, are not archived: `formal/README.md` gives the commands to rebuild them, and
+`k11_sums.tar.zst` lists the SHA-256 of every generated source and compiled file of the build, so that a rebuild can be
+compared file by file. The generated sources are archived at doi:10.5281/zenodo.23632239:
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `k11_sources_00.tar` | 1,999,370,240 | `4988f043abee0d3fe56ac1c71299b744f9e3b177ae364aec6c03d6fa4fee56fd` |
+| `k11_sources_01.tar` | 1,953,228,800 | `cff7f14964da43e6377e91c2c6edf36e1a56cd4109e1bb6fcb7c974efb78805d` |
+| `k11_sources_02.tar` | 1,990,543,360 | `594a71631da0b1d9350713bdee8ebe22f26de92cd82381151b05632bde79491d` |
+| `k11_sources_03.tar` | 1,974,435,840 | `9fc4e2e23a52438d4414b362fd538c7d49359da2e745308ad940aabc1a8834b9` |
+| `k11_sources_04.tar` | 1,993,533,440 | `56990cdf03f34efa25d3b27e8be77a6c04ac062bdb789a4388585ce37a46c59a` |
+| `k11_sources_05.tar` | 1,986,344,960 | `18dc1f72307d2c270f5953a45b6f3804997245a91d686fdea64222c25251aab9` |
+| `k11_sources_06.tar` | 1,992,171,520 | `c5eea78ec7e518defed7875fc867950e402029fc59fc0201fb46f1732903b005` |
+| `k11_sources_07.tar` | 1,991,710,720 | `58cbf33496bf2bfbd2eb3a8f8f5ba212cd18b784b917c81b8ea7e91d09d030f8` |
+| `k11_sources_08.tar` | 1,995,776,000 | `8f027c9f91de19f018a758d57b96758e256730c9c2ec96618e2229c7373abf3c` |
+| `k11_sources_09.tar` | 1,973,463,040 | `9a891d91c92f29f1d92c537a690110d3e80c2bb40216ea647a93b7d832bbd053` |
+| `k11_sources_10.tar` | 1,981,900,800 | `e284645638288c57fd835b9b85397d5774b49a226137fa45b858235bc33610c0` |
+| `k11_sources_11.tar` | 1,958,359,040 | `e22c0f731c8a792f2ccb8c0b2412d93ce9cb9ec53d4e3e4a01c799f72974a684` |
+| `k11_sources_12.tar` | 1,982,515,200 | `2d13403594c778a0fcd3ed7d97f036501fb37b1539fa55f6355c9e01f9bf2184` |
+| `k11_sources_13.tar` | 1,993,185,280 | `c4653a8495a3edc8b71d0c6bec6df4fc2841896a74c984dbc96cb2e6d1497817` |
+| `k11_sources_14.tar` | 1,996,615,680 | `ecf3de0f9c1898e401c07a0f0c29dc02473fcdfdb10d5b851275282d29e723d3` |
+| `k11_sources_15.tar` | 116,715,520 | `0b705bc049765bb5a30259e7dc0294e9b56bc540bc78856509ff6b8d5b65890c` |
+| `k11_glue.tar.zst` | 66,701,378 | `765203c48ea883ec00ce50b1fcc5a48adc9bf7da7e9f4741c3b8a89308faac6c` |
+| `k11_sums.tar.zst` | 66,568,744 | `1b96415125a178a4c16014a9c7b96c272adc8e32f7ac03291d7d3d95a4aa5234` |
+
+Each `k11_sources_NN.tar` holds the per-cell archives `P<c>.tar.gz` of a contiguous range of cells, exactly as they were
+built: the cell's leaf modules and its tree-walk modules. `k11_glue.tar.zst` holds the 75,126 modules generated from the
+trees before the build: the tree-walk modules (also in the cell archives), the 64 chunk modules and the root module with
+the final theorems. `k11_sums.tar.zst` lists the SHA-256 of the sixteen containers (`k11_sources_SHA256SUMS`), the cell
+range of each (`CONTAINERS.tsv`), and the SHA-256 of every generated source and of every compiled file of the build.
+
+The proof of the first inequality and the bound 0.8347 is in namespace `LebesgueCover.K3`: `hull3_geK`
+(`M(D, B_3, B_5) >= 0.8347`), `main3K` (every universal cover has area at least 0.8347) and `weak_main3K` (the same for
+every convex set that contains a congruent copy of every convex set of diameter 1); the two new statements are in
+`formal/lean/LebesgueCover/DefsK.lean`. It checks a certificate of its own for `D`, `B_3` and `B_5`, with a slightly
+larger root box divided into 1,024 cells and 25,214 leaves, each closed by one fan. Its 821 generated modules, with the
+output of its search, and their compiled files are in two more archives at doi:10.5281/zenodo.23632239:
 
 | File | Bytes | SHA-256 |
 |---|---|---|
@@ -276,13 +319,13 @@ are in two more archives at doi:10.5281/zenodo.23584940:
 
 Building these modules takes about 200 hours of single-threaded processes, with at most 10 GB of memory per process.
 
-The second inequality and the bound 0.836 have a Lean proof of the same kind, in namespace `LebesgueCover.K8`:
-`hull4_geK` (`M(D, B_3, B_5, B_7) >= 0.836`) and `mainK` and `weak_mainK`, the counterparts of `main5` and `weak_main5`
-for 0.836, again with only the three standard axioms. Its certificate for `D`, `B_3`, `B_5` and `B_7` has a root box of
-eight coordinates, divided into 65,536 cells, and 278,093 leaves, each closed by one fan; the three-fold symmetry of the
-triangle cuts the range of the pentagon's rotation to a third. Its 9,034 generated modules took about
-1,440 hours of single-threaded processes to build, with at most 14 GB of memory per process. They and their compiled
-files are archived at the same DOI:
+The proof of the second inequality and the bound 0.836 is in namespace `LebesgueCover.K8`: `hull4_geK`
+(`M(D, B_3, B_5, B_7) >= 0.836`) and `mainK` and `weak_mainK`, the counterparts of `main5` and `weak_main5` for 0.836.
+Its certificate for `D`, `B_3`, `B_5` and `B_7` has a root box of eight coordinates, divided into 65,536 cells, and
+278,093 leaves, each closed by one fan whose support points are written as one natural number; the three-fold symmetry
+of the triangle cuts the range of the pentagon's rotation to a third. Its 9,034 generated modules took about 1,440 hours
+of single-threaded processes to build, with at most 14 GB of memory per process. They and their compiled files are
+archived at the same DOI:
 
 | File | Bytes | SHA-256 |
 |---|---|---|
